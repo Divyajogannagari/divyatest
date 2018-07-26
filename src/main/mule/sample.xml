@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="14897b85-0306-4729-a1b5-1dc0d9531e27" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="35af330f-740a-436b-b9c6-bf5f3d5c5d39" basePath="/api" responseTimeout="30000000">
+		<http:request-connection protocol="HTTPS" host="atlasps-dev.schneider-electric.com" port="443" connectionIdleTimeout="30000000"/>
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="eae6225f-d4b4-43b6-9187-b65c66d46c19" >
+		<http:request-connection host="login.salesforce.com" port="443" protocol="HTTPS"/>
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration2" doc:name="HTTP Request configuration" doc:id="7066c263-4b0e-4b3f-995d-05dd34d7cd97" >
+		<http:request-connection protocol="HTTPS" host="schneider2-dev.zilliant.com" port="443" />
+	</http:request-config>
+	<flow name="sampleFlow1" doc:id="f0800158-1566-40e3-8515-4aa941b4621a" >
+		<http:listener doc:name="Listener" doc:id="73d6d6b6-7b8d-4c2d-82fb-18b868b42b10" config-ref="HTTP_Listener_config" path="/encode">
+			<ee:repeatable-file-store-stream />
+		</http:listener>
+		<http:request method="POST" doc:name="Request" doc:id="ffae8bb5-3586-43da-af72-2bc10082c17d" config-ref="HTTP_Request_configuration1" path="/services/oauth2/token?grant_type=password&amp;client_id=3MVG9zlTNB8o8BA0OUU38zoA4JuhTi1W5YrZ2XbtEYR8O1oADlJkM65DRQyl_zK2Thji21IcZIGwNMNfHdmSw&amp;client_secret=d5nhne74742h4hs48e61&amp;username=rest_api_user@schneider2.dev.zilliant.com&amp;password=58X6dCM2qO" requestStreamingMode="NEVER">
+			<http:headers ><![CDATA[#[output applicaton/java
+---
+{
+	"Content-Type" : "application/x-www-form-urlencoded"
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="bb8b6e18-b772-450c-82dc-d1b072f7ac43" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="encodedPayload" ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/java
+---
+'OAuth ' ++ toBase64(write(payload, "application/json"))
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		
+		<logger level="INFO" doc:name="Logger" doc:id="2928f4bd-d966-4f9b-8951-8f0886baa74c" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="1ef5edf3-34ac-47ad-bd4a-4616c8cbc9f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"formulas": ["HelloWorld"],
+	"includeSubComponents": true,
+	"lines": [{
+		"quoteDetails": {
+			"quoteNumber": "ABC123",
+			"source": "I",
+			"country": "US",
+			"salesTerritory": "112",
+			"projectType": "C8",
+			"customerID": "ABC123",
+			"purchaserID": "ABC123",
+			"authorizeEligible": true,
+			"escalated": false,
+			"requestedPrice": 1.00,
+			"competitorPrice": 50000.00,
+			"salesTerritoryPAF": 0.1234,
+			"sourcePAF": 0.1234,
+			"excludeFromReauth": false,
+			"allowEQM": true,
+			"minEQMPrice":   1234.56,
+			"countryOrderAttainPctMin": 0.9500,
+			"purchaserOrderTargetAttainment": 0.9876,
+			"floorMultiplierOverride": 0.1234,
+			
+			"lineDetails":[{
+				"lineNumber": 1,
+				"pdcat": "ABC123",
+				"productID": "212188538SBW32V02AP45SX20Y74",
+				"qty" : 3,
+				"profilePrice": 123.45,
+				"bookPrice": 123.45,
+				"listPrice": 123.45,
+				"requestedPrice": 52.00,
+				"ccogmCost": 123.45,
+				"ProductCost": 2.00,
+				"fixedListMultiplier": 0.8765,
+				"fixedDollar": 123.45,
+				"rebateType": "S",
+				"minMargin": 0.7654,
+				"pdcatPAF": 0.1234,
+				"commitShipPAF": 0.1234,
+				"recClipMinMultiplier": 0.1234,
+				"recClipMaxMultiplier": 0.9876,
+				"defaultPDCatStartMultiplier": 0.9876,
+				"defaultPDCatTargetMultiplier": 0.7654, 
+				"defaultPDCatFloorMultiplier": 0.4321,
+				"pdcatDiscountMultiplier": 0.1234,
+				"finalPAF": 0.1234
+			}],
+			
+			"priorQuote": {
+				"reauthCountLimit": 3,
+				"reauthMaxDays": 60,
+				"reauthBookChangeMaxPct": 0.05,
+				"reauthBookChangeMinPct": 0.02,
+				"reauthMarginChangeMaxPct": 0.05,
+				"reauthMarginChangeMinPct": 0.02,
+				
+				"authorizedDate": "08/03/2018 4:30PM",
+				"reauthorizationCount": 2,
+				"totalMarginAuthorized": 20000.00,
+				"totalBookAuthorized": 30000.00,
+				"targetAttainment": 0.98,
+				
+				"lineDetails":[{
+					"pdcat": "ABC123",
+					"productID": "212188538SBW32V02AP45SX20Y74",
+					"bookMultiplier": 1.0000,
+					"listMultiplier": 0.8000,
+					"isFixed": false
+				}]
+			}
+		}
+	}]
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request1" doc:id="e358729f-9524-4d7f-bdf5-f43b0a91177c" config-ref="HTTP_Request_configuration2" path="/v1/FormulaEvaluation/" requestStreamingMode="NEVER">
+			<http:headers ><![CDATA[#[output applicaton/java
+---
+{
+	"Content-Type" : "application/json",
+	"Authorization" : vars.encodedPayload
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="b7dcfbe8-1a67-4ce3-b30a-7d975fa02dd8" message="#[payload]"/>
+	</flow>
+</mule>
