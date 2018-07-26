@@ -41,7 +41,7 @@ output application/java
 			</ee:variables>
 		</ee:transform>
 		
-		<logger level="INFO" doc:name="Logger" doc:id="2928f4bd-d966-4f9b-8951-8f0886baa74c" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger1" doc:id="2928f4bd-d966-4f9b-8951-8f0886baa74c" message="#[payload]"/>
 		<ee:transform doc:name="Transform Message" doc:id="1ef5edf3-34ac-47ad-bd4a-4616c8cbc9f9" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
